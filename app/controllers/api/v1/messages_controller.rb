@@ -4,8 +4,8 @@ module Api
       before_action :set_message, only: [:show, :update, :destroy]
 
       def index
-        messages = Message.order(created_at: :desc)
-        render json: { status: 'SUCCESS', message: 'Loaded messages', data: messages }
+        @messages = Message.order(created_at: :desc)
+        render json: { status: 'SUCCESS', message: 'Loaded messages', data: @messages }
       end
 
       def show
