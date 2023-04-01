@@ -25,6 +25,12 @@ module Backend
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    config.action_dispatch.default_headers = {
+      "X-Content-Type-Options" => "nosniff",
+      "X-Frame-Options" => "DENY",
+      "X-XSS-Protection" => "1; mode=block",
+    }
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins 'localhost:3000'
@@ -34,7 +40,23 @@ module Backend
           credentials: true
       end
     end
+
+    config.content_security_policy do |policy|
+      policy.default_src :self
+      policy.script_src :self, :unsafe_inline, "https://cdn.jsdelivr.net/npm/"
+      policy.object_src :none
+      policy.frame_ancestors :none
+      policy.base_uri :none
+      policy.form_action :self
+      policy.connect_src :self
+      policy.font_src :self, "https://fonts.gstatic.com"
+      policy.img_src :self
+      policy.manifest_src :self
+      policy.media_src :self
+      policy.prefetch_src :self
+      policy.worker_src :self
+    end
+
+    config.middleware.use Rack::Protection, use: %i[authenticity_token cookie_tossing form_token_request remote_token_request strict_transport, content_security_policy, xss_header, xframe_options]
   end
 end
-
-
